@@ -16,17 +16,12 @@ class Record():
         To start data recording and exporting process as below
         (1) check access right -> authorize -> connect headset->create session
         (2) start record --> stop record --> disconnect headset --> export record
-        Parameters
-        ----------
         record_duration_s: int, optional
             duration of record. default is 20 seconds
 
         headsetId: string , optional
              id of wanted headet which you want to work with it.
              If the headsetId is empty, the first headset in list will be set as wanted headset
-        Returns
-        -------
-        None
         """
         self.record_duration_s = record_duration_s
 
@@ -43,14 +38,9 @@ class Record():
     def create_record(self, record_title, **kwargs):
         """
         To create a record
-        Parameters
-        ----------
         record_title : string, required
              title  of record
         other optional params: Please reference to https://emotiv.gitbook.io/cortex-api/records/createrecord
-        Returns
-        -------
-        None
         """
         self.c.create_record(record_title, **kwargs)
 
@@ -58,8 +48,7 @@ class Record():
         self.c.stop_record()
 
 
-    def export_record(self, folder, stream_types, format, record_ids,
-                      version, **kwargs):
+    def export_record(self, folder, stream_types, format, record_ids, version, **kwargs):
         """
         To export records
         Parameters
@@ -135,8 +124,8 @@ class Record():
 
 
 def main():
-    app_client_id = 'fpCi6nTQcc4Cts2sIAsXNL1xkXOGmIorihpdNbep'
-    app_client_secret = '7KBmJhfKAgHvWm9FfMZLaHv3x0EfRERToaRuL3cvJd3JL93ljIZlqD6ndM9UYcT181Okb49m8GRA0oI1Ntanw9VfXC7TqI3440l3aUYNDrJUdw2iduvWQzSbyLu5YAc0'
+    app_client_id = ''
+    app_client_secret = ''
 
     r = Record(app_client_id, app_client_secret)
 
