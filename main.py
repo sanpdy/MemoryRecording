@@ -1,18 +1,20 @@
 import tkinter as tk
 from PIL import Image, ImageTk
 import sv_ttk
-from record import Record
+from record import Record, record_main  # Ensure these are correctly defined
 import random
+from threading import Thread
 
 class ImageDisplayApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Image Display")
-        
+
         window_width = 800
         window_height = 600
         self.root.geometry(f"{window_width}x{window_height}")
         self.images = ["dog.png", "cat.png", "bird.png"]
+        self.preload_images()
         self.current_image_index = 0
         self.displayed_images = []
         self.score = 0
@@ -20,7 +22,7 @@ class ImageDisplayApp:
 
         self.img_label = tk.Label(root)
         self.img_label.pack(expand=True)
-        
+
         self.score_label = tk.Label(root, text=f"Score: {self.score}", font=("Arial", 16))
         self.score_label.pack_forget()
 
@@ -32,7 +34,15 @@ class ImageDisplayApp:
         self.root.geometry(f"+{x}+{y}")
         self.start_time = None
         self.countdown()
-    
+
+    def preload_images(self):
+        self.preloaded_images = {}
+        for img_name in self.images:
+            img_path = 'images/' + img_name
+            original_img = Image.open(img_path)
+            resized_img = original_img.resize((200, 200))
+            self.preloaded_images[img_name] = ImageTk.PhotoImage(resized_img)
+
     def countdown(self):
         def decrement(count):
             label['text'] = count
@@ -41,24 +51,16 @@ class ImageDisplayApp:
             if count == 0:
                 label.destroy()
                 self.start_image_display_recordings()
-        
+
         label = tk.Label(self.root)
         label.config(font=('Helvetica bold', 35))
         label.place(x=400, y=275)
-        decrement(5)
-        
+        decrement(2)
+
     def start_image_display_recordings(self):
-        app_client_id = ''
-        app_client_secret = ''
-        r = Record(app_client_id, app_client_secret)
-        r.record_title = 'trial'
-        r.record_export_folder = 'recordings'
-        r.record_export_data_types = ['EEG']
-        r.record_export_format = 'CSV'
-        r.record_export_version = 'V2'
-        r.record_description = ''
-        record_duration_s = 10
-        r.start(record_duration_s)
+        record_duration_s = 30
+        thread = Thread(target=record_main, args=(record_duration_s,))
+        thread.start()
         self.start_time = self.root.winfo_toplevel().tk.call('clock', 'seconds')
         self.score_label.pack()
         self.update_image()
@@ -68,17 +70,15 @@ class ImageDisplayApp:
         elapsed_time = current_time - self.start_time
         if elapsed_time < 30:
             img_index = random.randint(0, len(self.images) - 1)
-            img_path = 'images/' + self.images[img_index]
-            original_img = Image.open(img_path)
-            resized_img = original_img.resize((200, 200))
-            img = ImageTk.PhotoImage(resized_img)
+            img_name = self.images[img_index]
+            img = self.preloaded_images[img_name]
             self.img_label.config(image=img)
             self.img_label.image = img
-            
-            self.displayed_images.append(self.images[img_index])
+
+            self.displayed_images.append(img_name)
             if len(self.displayed_images) > 3:
                 self.displayed_images.pop(0)
-                
+
             self.scored = False
             self.root.after(1000, self.update_image)
         else:
